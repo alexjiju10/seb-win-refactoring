@@ -19,10 +19,12 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore SafeExamBrowser.sln
 
-      - name: Build Runtime and Client (Debug x64)
+      - name: Build Browser, Runtime, and Client (Debug x64)
+        shell: cmd
         run: |
-          msbuild SafeExamBrowser.Runtime\SafeExamBrowser.Runtime.csproj /p:Configuration=Debug /p:Platform=x64 /p:langversion=latest /verbosity:minimal
-          msbuild SafeExamBrowser.Client\SafeExamBrowser.Client.csproj /p:Configuration=Debug /p:Platform=x64 /p:langversion=latest /verbosity:minimal
+          msbuild SafeExamBrowser.Browser\SafeExamBrowser.Browser.csproj /p:Configuration=Debug /p:Platform=x64 /p:SolutionDir=%CD%\ /p:langversion=latest /verbosity:minimal
+          msbuild SafeExamBrowser.Runtime\SafeExamBrowser.Runtime.csproj /p:Configuration=Debug /p:Platform=x64 /p:SolutionDir=%CD%\ /p:langversion=latest /verbosity:minimal
+          msbuild SafeExamBrowser.Client\SafeExamBrowser.Client.csproj /p:Configuration=Debug /p:Platform=x64 /p:SolutionDir=%CD%\ /p:langversion=latest /verbosity:minimal
 
       - name: Package runnable files
         shell: pwsh
