@@ -1,0 +1,38 @@
+name: Build SEB
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore SafeExamBrowser.sln
+
+      - name: Build Runtime and Client (Debug x64)
+        run: |
+          msbuild SafeExamBrowser.Runtime\SafeExamBrowser.Runtime.csproj /p:Configuration=Debug /p:Platform=x64 /p:langversion=latest /verbosity:minimal
+          msbuild SafeExamBrowser.Client\SafeExamBrowser.Client.csproj /p:Configuration=Debug /p:Platform=x64 /p:langversion=latest /verbosity:minimal
+
+      - name: Package runnable files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path seb-build
+          Copy-Item -Path "SafeExamBrowser.Runtime\bin\x64\Debug\*" -Destination "seb-build" -Recurse -Force
+          Copy-Item -Path "SafeExamBrowser.Client\bin\x64\Debug\*" -Destination "seb-build" -Recurse -Force
+
+      - name: Upload compiled SEB
+        uses: actions/upload-artifact@v4
+        with:
+          name: SafeExamBrowser-x64-Debug
+          path: seb-build
